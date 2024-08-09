@@ -5,7 +5,7 @@ app.get("/",(req,res)=>{                      // Request - Response cycle browse
     // console.log(req)
     // res.send("Hello world")
     res.json({
-        message: "Hello pranjal"
+        message: "Hello world"
     })
 })
 
