@@ -4,7 +4,7 @@ const app = express()                         // express methods via app variabl
 app.get("/",(req,res)=>{                      // Request - Response cycle browser==>requests
     // console.log(req)
     // res.send("Hello world")
-    res.json({
+    res.status(200).json({                     // Success status code
         message: "Hello world"
     })
 })
