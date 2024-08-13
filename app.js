@@ -1,7 +1,10 @@
-const express = require('express')            // express from mode_values
-const app = express()                         // express methods via app variable
+const express = require('express')                          // express from mode_values
+const connectToDatabase = require('./database/')            // Auto import index.js , need route if another name
+const app = express()                                       // express methods via app variable
 
-app.get("/",(req,res)=>{                      // Request - Response cycle browser==>requests
+connectToDatabase()
+
+app.get("/",(req,res)=>{                      // Request - Response cycle, browser==>requests
     // console.log(req)
     // res.send("Hello world")
     res.status(200).json({                     // Success status code
