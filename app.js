@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')                          // express from mode_values
 const connectToDatabase = require('./database/')            // Auto import index.js , need route if another name
 const app = express()                                       // express methods via app variable
@@ -18,6 +20,6 @@ app.get("/about",(req,res)=>{
     })
 })
 
-app.listen(3000,()=>{
+app.listen(process.env.PORT,()=>{
     console.log("NodeJs project has started")
 })
