@@ -5,6 +5,8 @@ const Blog = require('./model/blogModel')
 
 const app = express()                                                                   // express methods via app variable
 app.use(express.json())                                                                 // Understanding json format in express
+const { storage, multer } = require('./middleware/multerConfig')
+const upload = multer({storage: storage})   // File upload
 
 connectToDatabase()
 
@@ -23,24 +25,25 @@ app.get("/about",(req,res)=>{
     })
 })
 
-app.post("/blog",async (req, res)=>{
-    // console.log(req.body)                                                            // Accepting the data posted, {obejcts}
-    const title = req.body.title
-    const subtitle = req.body.subtitle
-    const description = req.body.description
-    const image = req.body.image
+app.post("/blog", upload.single('image') ,async (req, res)=>{
+    // console.log(req.body)                                                            // Accepting the data posted, {objects} and sending to database
+    // const title = req.body.title
+    // const subtitle = req.body.subtitle
+    // const description = req.body.description
+    // const image = req.body.image
 
-    if(!title || !subtitle || !description || !image) {
-        return res.status(400).json({                                                   // Doesn't execute add data code
-            message: "Please provide title, subtitle, description, image"
-        })
-    }
-    await Blog.create({
-        title : title,                                                                  // Column name : data from frontend 
-        subtitle : subtitle,
-        description : description,
-        image : image
-    })
+    // if(!title || !subtitle || !description || !image) {
+    //     return res.status(400).json({                                                   // Doesn't execute add data code
+    //         message: "Please provide title, subtitle, description, image"
+    //     })
+    // }
+
+    // await Blog.create({
+    //     title : title,                                                                  // Column name : data from frontend 
+    //     subtitle : subtitle,
+    //     description : description,
+    //     image : image
+    // })
 
     res.status(200).json({
         message: "Blog api hit successfully"
