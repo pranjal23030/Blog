@@ -7,6 +7,7 @@ const app = express()                                                           
 app.use(express.json())                                                                 // Understanding json format in express
 const { storage, multer } = require('./middleware/multerConfig')
 const upload = multer({storage: storage})   // File upload
+const fs = require('fs') // File system
 
 connectToDatabase()
 
@@ -24,6 +25,8 @@ app.get("/about",(req,res)=>{
         message: "This is the about page"
     })
 })
+
+// CREATE
 
 app.post("/blog", upload.single('image') ,async (req, res)=>{
     // console.log(req.body)                                                            // Accepting the data posted, {objects} and sending to database
@@ -51,6 +54,8 @@ app.post("/blog", upload.single('image') ,async (req, res)=>{
     })
 })
 
+// ALL READ
+
 app.get("/blog",async(req,res)=>{            // Kinda like CRUD Read API
     const blogs = await Blog.find()         // returns array
     res.status(200).json({
@@ -58,6 +63,76 @@ app.get("/blog",async(req,res)=>{            // Kinda like CRUD Read API
         data: blogs
     })
 })
+
+// SINGLE READ
+
+app.get("/blog/:id",async (req,res)=>{
+    const id = req.params.id
+    const blog =  await Blog.findById(id) // object
+
+    if(!blog){
+        return res.status(404).json({
+            message : "no data found"
+        })
+    }
+
+    res.status(200).json({
+        message : "Fetched successfully", 
+        data : blog
+    })
+  
+})
+
+// DELETE
+
+app.delete("/blog/:id",async (req,res)=>{
+    const id = req.params.id
+    const blog = await Blog.findById(id)
+    const imageName = blog.image
+ 
+    fs.unlink(`storage/${imageName}`,(err)=>{
+        if(err){
+            console.log(err)
+        }else{
+            console.log("File deleted successfully")
+        }
+    })
+    await Blog.findByIdAndDelete(id)
+    res.status(200).json({
+        message : 'Blog deleted successfully'
+    })
+})
+
+// UPDATE
+
+app.patch('/blog/:id',upload.single('image'), async(req,res)=>{
+    const id = req.params.id 
+    const {title,subtitle,description} = req.body 
+    let imageName;
+    if(req.file){
+        imageName=req.file.filename
+        const blog = await Blog.findById(id)
+        const oldImageName = blog.image
+    
+        fs.unlink(`storage/${oldImageName}`,(err)=>{
+            if(err){
+                console.log(err)
+            }else{
+                console.log("File deleted successfully")
+            }
+        })
+    }
+   await Blog.findByIdAndUpdate(id,{
+        title : title, 
+        subtitle : subtitle, 
+        description : description, 
+        image : imageName
+    })
+    res.status(200).json({
+        message : "Blog updated successfully"
+    })
+})
+
 
 app.use(express.static('./storage'))            // Image read permission
 
