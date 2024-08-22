@@ -8,6 +8,7 @@ app.use(express.json())                                                         
 const { storage, multer } = require('./middleware/multerConfig')
 const upload = multer({storage: storage})   // File upload
 const fs = require('fs') // File system
+const { isValidObjectId } = require('mongoose')
 
 connectToDatabase()
 
@@ -68,6 +69,13 @@ app.get("/blog",async(req,res)=>{            // Kinda like CRUD Read API
 
 app.get("/blog/:id",async (req,res)=>{
     const id = req.params.id
+    
+    if(!isValidObjectId(id)) {
+        return res.status(400).json({
+            message: 'id is not valid.'
+        })
+    }
+        
     const blog =  await Blog.findById(id) // object
 
     if(!blog){
