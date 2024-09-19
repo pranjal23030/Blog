@@ -10,6 +10,12 @@ const upload = multer({storage: storage})   // File upload
 const fs = require('fs') // File system
 const { isValidObjectId } = require('mongoose')
 
+const cors = require('cors')
+
+app.use(cors({
+    origin : "http://localhost:5173"
+}))
+
 connectToDatabase()
 
 app.get("/",(req,res)=>{                                                                // Request - Response cycle, browser==>requests
