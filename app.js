@@ -6,19 +6,19 @@ const Blog = require('./model/blogModel')
 const app = express()                                                                   // express methods via app variable
 app.use(express.json())                                                                 // Understanding json format in express
 const { storage, multer } = require('./middleware/multerConfig')
-const upload = multer({storage: storage})   // File upload
+const upload = multer({ storage: storage })   // File upload
 const fs = require('fs') // File system
 const { isValidObjectId } = require('mongoose')
 
 const cors = require('cors')
 
 app.use(cors({
-    origin : "http://localhost:5173"
+    origin: "http://localhost:5173"
 }))
 
 connectToDatabase()
 
-app.get("/",(req,res)=>{                                                                // Request - Response cycle, browser==>requests
+app.get("/", (req, res) => {                                                                // Request - Response cycle, browser==>requests
     // console.log(req)
     // res.send("Hello world")
 
@@ -27,7 +27,7 @@ app.get("/",(req,res)=>{                                                        
     })
 })
 
-app.get("/about",(req,res)=>{
+app.get("/about", (req, res) => {
     res.json({
         message: "This is the about page"
     })
@@ -35,28 +35,28 @@ app.get("/about",(req,res)=>{
 
 // CREATE
 
-app.post("/blog", upload.single('image') ,async (req, res)=>{
+app.post("/blog", upload.single('image'), async (req, res) => {
     // console.log(req.body)                                                            // Accepting the data posted, {objects} and sending to database
 
-    const {title,subtitle,description} = req.body
+    const { title, subtitle, description } = req.body
 
     let filename;
-    if(req.file){
-      filename = "http://localhost:3000/" + req.file.filename 
-    }else{
-     filename = "https://cdn.mos.cms.futurecdn.net/i26qpaxZhVC28XRTJWafQS-1200-80.jpeg"
+    if (req.file) {
+        filename = "http://localhost:3000/" + req.file.filename
+    } else {
+        filename = "https://cdn.mos.cms.futurecdn.net/i26qpaxZhVC28XRTJWafQS-1200-80.jpeg"
     }
 
-    if(!title || !subtitle || !description) {
+    if (!title || !subtitle || !description) {
         return res.status(400).json({                                                   // Doesn't execute add data code
             message: "Please provide title, subtitle, description."
         })
     }
 
     await Blog.create({
-        title : title,                                                                  // Column name : data from frontend 
-        subtitle : subtitle,
-        description : description,
+        title: title,                                                                  // Column name : data from frontend 
+        subtitle: subtitle,
+        description: description,
         image: filename
     })
 
@@ -67,7 +67,7 @@ app.post("/blog", upload.single('image') ,async (req, res)=>{
 
 // ALL READ
 
-app.get("/blog",async(req,res)=>{            // Kinda like CRUD Read API
+app.get("/blog", async (req, res) => {            // Kinda like CRUD Read API
     const blogs = await Blog.find()         // returns array
     res.status(200).json({
         message: "Blogs fetched successfully",
@@ -77,83 +77,83 @@ app.get("/blog",async(req,res)=>{            // Kinda like CRUD Read API
 
 // SINGLE READ
 
-app.get("/blog/:id",async (req,res)=>{
+app.get("/blog/:id", async (req, res) => {
     const id = req.params.id
-    
-    if(!isValidObjectId(id)) {
+
+    if (!isValidObjectId(id)) {
         return res.status(400).json({
             message: 'id is not valid.'
         })
     }
-        
-    const blog =  await Blog.findById(id) // object
 
-    if(!blog){
+    const blog = await Blog.findById(id) // object
+
+    if (!blog) {
         return res.status(404).json({
-            message : "no data found"
+            message: "no data found"
         })
     }
 
     res.status(200).json({
-        message : "Fetched successfully", 
-        data : blog
+        message: "Fetched successfully",
+        data: blog
     })
-  
+
 })
 
 // DELETE
 
-app.delete("/blog/:id",async (req,res)=>{
+app.delete("/blog/:id", async (req, res) => {
     const id = req.params.id
     const blog = await Blog.findById(id)
     const imageName = blog.image
- 
-    fs.unlink(`storage/${imageName}`,(err)=>{
-        if(err){
+
+    fs.unlink(`storage/${imageName}`, (err) => {
+        if (err) {
             console.log(err)
-        }else{
+        } else {
             console.log("File deleted successfully")
         }
     })
     await Blog.findByIdAndDelete(id)
     res.status(200).json({
-        message : 'Blog deleted successfully'
+        message: 'Blog deleted successfully'
     })
 })
 
 // UPDATE
 
-app.patch('/blog/:id',upload.single('image'), async(req,res)=>{
-    const id = req.params.id 
-    const {title,subtitle,description} = req.body 
+app.patch('/blog/:id', upload.single('image'), async (req, res) => {
+    const id = req.params.id
+    const { title, subtitle, description } = req.body
     let imageName;
-    if(req.file){
-        imageName=req.file.filename
+    if (req.file) {
+        imageName = "http://localhost:3000/" + req.file.filename
         const blog = await Blog.findById(id)
         const oldImageName = blog.image
-    
-        fs.unlink(`storage/${oldImageName}`,(err)=>{
-            if(err){
+
+        fs.unlink(`storage/${oldImageName}`, (err) => {
+            if (err) {
                 console.log(err)
-            }else{
+            } else {
                 console.log("File deleted successfully")
             }
         })
     }
-   await Blog.findByIdAndUpdate(id,{
-        title : title, 
-        subtitle : subtitle, 
-        description : description, 
-        image : imageName
+    await Blog.findByIdAndUpdate(id, {
+        title: title,
+        subtitle: subtitle,
+        description: description,
+        image: imageName
     })
     res.status(200).json({
-        message : "Blog updated successfully"
+        message: "Blog updated successfully"
     })
 })
 
 
 app.use(express.static('./storage'))            // Image read permission
 
-app.listen(process.env.PORT,()=>{
+app.listen(process.env.PORT, () => {
     console.log("NodeJs project has started")
 })
