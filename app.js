@@ -13,7 +13,7 @@ const { isValidObjectId } = require('mongoose')
 const cors = require('cors')
 
 app.use(cors({
-    origin: ["http://localhost:5173", "https://pranjal-front-blog.vercel.app"]
+    origin: "http://localhost:5173"
 }))
 
 connectToDatabase()
@@ -42,7 +42,7 @@ app.post("/blog", upload.single('image'), async (req, res) => {
 
     let filename;
     if (req.file) {
-        filename = "https://pranjal-blog-project.onrender.com/" + req.file.filename
+        filename = "http://localhost:3000/" + req.file.filename
     } else {
         filename = "https://cdn.mos.cms.futurecdn.net/i26qpaxZhVC28XRTJWafQS-1200-80.jpeg"
     }
@@ -128,7 +128,7 @@ app.patch('/blog/:id', upload.single('image'), async (req, res) => {
     const { title, subtitle, description } = req.body
     let imageName;
     if (req.file) {
-        imageName = "https://pranjal-blog-project.onrender.com/" + req.file.filename
+        imageName = "http://localhost:3000/" + req.file.filename
         const blog = await Blog.findById(id)
         const oldImageName = blog.image
 
